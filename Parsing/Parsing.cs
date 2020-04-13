@@ -7,20 +7,11 @@ namespace KurtsNeuralNetworkz.Parsing
 {
     public class InitParser
     {
-        private enum State
-        {
-            Start,
-	    Whitespace,
-            ReadingInt,
-            ReadInt,
-            ReadFinalInt,
-	    Invalid
-        }
-
         public static FeedForwardBoi Parse(TextReader tr)
         {
             string s;
-            int numEgs;
+            int numEgs, iterations;
+            double lRate;
             int[] topology;
             double[][][] egs;
             char[] space = new char[] {' '};
@@ -44,6 +35,15 @@ namespace KurtsNeuralNetworkz.Parsing
             if (!int.TryParse(s, out numEgs) ||
                     numEgs < 0)
                 numEgs = 0;
+            s = tr.ReadLine();
+            if (!int.TryParse(s, out iterations) ||
+                    iterations < 0)
+                iterations = 10000;
+            s = tr.ReadLine();
+            if (!double.TryParse(s, out lRate) ||
+                    lRate < 0)
+                lRate = 0.1;
+
             egs = new double[numEgs][][];
 
             for (int i=0;i<numEgs;i++)
@@ -62,10 +62,10 @@ namespace KurtsNeuralNetworkz.Parsing
                 catch (Exception)
                 {
                     throw new Exception($"Unable to read example {i}!"
-                            + ($" Issue parsing: {s}."));
+                            + $" Issue parsing: {s}.");
                 }
             }
-            ffb.TrainOnExamples(egs, 1000000, 0.1);
+            ffb.TrainOnExamples(egs, iterations, lRate);
             return ffb;
         }
     }
@@ -82,7 +82,7 @@ namespace KurtsNeuralNetworkz.Parsing
             }
             catch (Exception)
             {
-                throw new Exception("Unable to parse input: {s}.");
+                throw new Exception($"Unable to parse input: {s}.");
             }
             return input;
         }
